@@ -1,34 +1,61 @@
 const fs = require('fs');
+const readline = require('readline');
+const path = require('path');
 
-// Đọc file gốc
-fs.readFile('original.txt', 'utf8', (err, data) => {
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+function splitLines(filePath) {
+  fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
-        console.error(err);
-        return;
+      console.error('Không thể đọc:', err);
+      rl.close();
+      return;
     }
 
-    // Tách dòng
     const lines = data.split('\n');
 
-    // Tính số lượng file cần tạo
-    const numFiles = Math.ceil(lines.length / 5);
+    // Thư mục lưu file mới
+    const outputDir = './output'; 
+    fs.mkdirSync(outputDir, { recursive: true });
 
-    // Tạo các file mới
-    for (let i = 0; i < numFiles; i++) {
-        const startIndex = i * 5;
-        const endIndex = Math.min(startIndex + 5, lines.length);
-        const filename = `part${i + 1}.txt`; // Tên file mới
+    // Tạo và lưu các file mới
+    for (let i = 0; i < 5; i++) {
+      const newFileName = `part${i + 1}.txt`; 
 
-        // Lấy phần dòng từ startIndex đến endIndex
-        const fileContent = lines.slice(startIndex, endIndex).join('\n').trim();
+      let fileContent = '';
+      for (let j = 0; j < lines.length; j++) {
+        const lineIndex = (i * 5 + j) % 5;
+        if (lineIndex === i) {
+          fileContent += lines[j] + '\n';
+        }
+      }
 
-        // Viết nội dung vào file mới
-        fs.writeFile(filename, fileContent, (err) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
-            console.log(`Đã tạo ${filename}`);
-        });
+      const outputFilePath = path.join(outputDir, newFileName); 
+      fs.writeFile(outputFilePath, fileContent.trim(), (err) => {
+        if (err) {
+          console.error('Không thể tạo:', err);
+          rl.close();
+          return;
+        }
+        console.log(`Đã tạo ${outputFilePath}`);
+      });
     }
+
+    rl.question('', (answer) => {
+      if (answer.toLowerCase() === 'y') {
+        rl.question('Nhập file ', (nextFilePath) => {
+          splitLines(nextFilePath); 
+        });
+      } else {
+        rl.close();
+      }
+    });
+  });
+}
+
+rl.question('Nhập đường dẫn và tên file (.txt) bạn muốn tách: ', (filePath) => {
+  splitLines(filePath); 
 });
