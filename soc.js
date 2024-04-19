@@ -7,10 +7,10 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-function splitLines(filePath) {
+{function splitLines(filePath) {
   fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
-      console.error('Không thể đọc:', err);
+      console.error('Không thể đọc file:', err);
       rl.close();
       return;
     }
@@ -36,7 +36,7 @@ function splitLines(filePath) {
       const outputFilePath = path.join(outputDir, newFileName); 
       fs.writeFile(outputFilePath, fileContent.trim(), (err) => {
         if (err) {
-          console.error('Không thể tạo:', err);
+          console.error('Không thể tạo file mới:', err);
           rl.close();
           return;
         }
@@ -44,18 +44,18 @@ function splitLines(filePath) {
       });
     }
 
-    rl.question('', (answer) => {
-      if (answer.toLowerCase() === 'y') {
-        rl.question('Nhập file ', (nextFilePath) => {
+    
+    {
+    rl.question('file l nào : ', (nextFilePath) => {
           splitLines(nextFilePath); 
         });
-      } else {
-        rl.close();
+   
+      
       }
     });
-  });
+  };
 }
 
-rl.question('Nhập đường dẫn và tên file (.txt) bạn muốn tách: ', (filePath) => {
+rl.question('file l nào : ', (filePath) => {
   splitLines(filePath); 
 });
